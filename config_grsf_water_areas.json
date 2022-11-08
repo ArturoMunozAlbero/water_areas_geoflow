@@ -1,0 +1,65 @@
+{  
+  "profile": {
+	"id": "grsf-water-areas",
+	"mode": "entity",
+	"project": "GRSF Water Areas catalogue",
+	"organization": "GRSF",
+	"logos": []
+  },
+  "metadata": {
+    "entities": [{
+      "handler": "gsheet",
+      "source": "https://docs.google.com/spreadsheets/d/1WmJ3Qtpj8GwGKj-SK2Lho3w5ouxdhPOjAf2JBpdA_UQ/edit?usp=sharing"
+    }],
+    "contacts" : [{
+      "handler": "gsheet",
+      "source": "https://docs.google.com/spreadsheets/d/15PPHOFDUuXmJLR5n4IAhZO8DxVA1G0rLS7S1oab5-9k/edit?usp=sharing"
+    }]
+  },
+  "software": [
+	{
+		"id": "grsf-geonetwork",
+		"type": "output",
+		"software_type": "geonetwork",
+		"parameters": {
+			"url": "https://grsf-admin.d4science.org/geonetwork",
+			"user": "{{GRSF_GEONETWORK_USER}}",
+			"pwd": "{{GRSF_GEONETWORK_PASSWORD}}",
+			"version": "3.0.4",
+			"logger": "DEBUG"
+		}
+	},
+	{
+		"id": "grf-geoserver",
+		"type": "output",
+		"software_type": "geoserver",
+		"parameters": {
+			"url": "https://grsf-admin.d4science.org/geoserver",
+			"user": "{{GRSF_GEOSERVER_USER}}",
+			"pwd": "{{GRSF_GEOSERVER_PASSWORD}}",
+			"logger": "DEBUG"
+		},
+		"properties" : {
+			"workspace": "grsf",
+			"datastore": "grsf_shapefiles"
+		}
+	}
+  ],
+  "actions": [
+	{
+      "id": "geometa-create-iso-19115",
+      "run": true,
+	  "options": {
+		"logo": true
+	  }
+    },
+	{
+	  "id": "geonapi-publish-iso-19139",
+	  "run": true
+	},
+	{
+	  "id": "geosapi-publish-ogc-services",
+	  "run": true
+	}
+  ]
+}
