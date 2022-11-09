@@ -22,10 +22,10 @@
 		"type": "output",
 		"software_type": "geonetwork",
 		"parameters": {
-			"url": "https://grsf-admin.d4science.org/geonetwork",
+			"url": "{{GRSF_GEONETWORK_URL}}",
 			"user": "{{GRSF_GEONETWORK_USER}}",
 			"pwd": "{{GRSF_GEONETWORK_PASSWORD}}",
-			"version": "3.0.4",
+			"version": "{{GRSF_GEONETWORK_VERSION}}",
 			"logger": "DEBUG"
 		}
 	},
@@ -34,14 +34,14 @@
 		"type": "output",
 		"software_type": "geoserver",
 		"parameters": {
-			"url": "https://grsf-admin.d4science.org/geoserver",
+			"url": "{{GRSF_GEOSERVER_URL}}",
 			"user": "{{GRSF_GEOSERVER_USER}}",
 			"pwd": "{{GRSF_GEOSERVER_PASSWORD}}",
 			"logger": "DEBUG"
 		},
 		"properties" : {
-			"workspace": "grsf",
-			"datastore": "grsf_shapefiles"
+			"workspace": "sdilab_fisheriesatlas",
+			"datastore": "grsf_water_areas"
 		}
 	}
   ],
@@ -59,7 +59,10 @@
 	},
 	{
 	  "id": "geosapi-publish-ogc-services",
-	  "run": true
+	  "run": true,
+	  "options": {
+		"createStore": true
+	  }
 	}
   ]
 }
