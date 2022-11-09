@@ -57,5 +57,14 @@ area_db <- do.call("rbind", lapply(water_area_refs, function(water_area_ref){
 	return(area_refs.sf)
 }))
 
+#errors
 readr::write_csv(errors, "water_areas_issues.csv")
+
+#normalized area db as geopackage
 sf::write_sf(area_db, "water_areas_merge.gpkg")
+#normalized area db as geopackage
+area_db_withoutgeom <- as.data.frame(area_db)
+area_db_withoutgeom$geometry <- NULL
+readr::write_csv(area_db, "water_areas_merge.csv")
+
+
