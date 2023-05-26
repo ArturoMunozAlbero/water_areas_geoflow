@@ -4,7 +4,11 @@
 	"mode": "entity",
 	"project": "GRSF Water Areas catalogue",
 	"organization": "GRSF",
-	"logos": []
+	"logos": [],
+	"environment": {
+		"file": ".env",
+        "hide_env_vars": ["*"]
+	}
   },
   "metadata": {
     "entities": [{
