@@ -104,5 +104,4 @@ function(action, entity, config){
   
   #write CSV
   readr::write_csv(out_vocab, file.path(getwd(), "metadata", paste0(entity$identifiers$id, "_areas.csv")))
-   
 }
