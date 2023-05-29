@@ -13,7 +13,7 @@ function(action, entity, config){
   country = NA
   countries = entity$subjects[sapply(entity$subjects, function(x){x$key == "country"})]
   if(length(countries)>0){
-    country = countries[[1]]$keywords[[1]]$name
+    country = tolower(countries[[1]]$keywords[[1]]$name)
   }
   
   #owner
@@ -33,6 +33,19 @@ function(action, entity, config){
   code_system_names = entity$subjects[sapply(entity$subjects, function(x){x$key == "grsf_code_system_name"})]
   if(length(code_system_names)>0){
     code_system_name = code_system_names[[1]]$keywords[[1]]$name
+  }
+  
+  #differentiating_code_system
+  differentiating_code_system = NA
+  differentiating_code_systems = entity$subjects[sapply(entity$subjects, function(x){x$key == "grsf_differentiating_code_system"})]
+  if(length(differentiating_code_systems)>0){
+    differentiating_code_system = differentiating_code_systems[[1]]$keywords[[1]]$name
+  }
+  #differentiating_code_system_description
+  differentiating_code_system_description = NA
+  differentiating_code_system_descriptions = entity$subjects[sapply(entity$subjects, function(x){x$key == "grsf_differentiating_code_system_description"})]
+  if(length(differentiating_code_system_descriptions)>0){
+    differentiating_code_system_description = differentiating_code_system_descriptionS[[1]]$keywords[[1]]$name
   }
   
   #area_code
@@ -85,22 +98,20 @@ function(action, entity, config){
   
   out_vocab = data.frame(
     namespace = entity$identifiers$id,
-    country = tolower(country),
+    country = country,
     system_owner_code = owner$identifiers$id,
     system_owner_name = owner$organizationName,
     code_system = code_system,
     code_system_name = code_system_name,
-    differentiating_code_system = NA, #TODO check with Arturo
-    differentiating_code_system_description = NA, #TODO check with Arturo
-    area_code = area_codes,
-    area_name = area_names,
+    differentiating_code_system = differentiating_code_system,
+    differentiating_code_system_description = differentiating_code_system_description,
+    area_code = area_codes, #from features (shapefiles)
+    area_name = area_names, #from features (shapefiles)
     area_type = area_type,
     typology = typology,
     species_specific = species_specific,
     parent_area = parent_areas
   )
-  
-  print(out_vocab)
   
   #write CSV
   readr::write_csv(out_vocab, file.path(getwd(), "metadata", paste0(entity$identifiers$id, "_areas.csv")))
