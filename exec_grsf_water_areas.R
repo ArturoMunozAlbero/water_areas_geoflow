@@ -11,3 +11,12 @@ for(area_file in area_files){
 	file.copy(from = area_file, to = getwd(), overwrite = TRUE)
 }
 setwd(wd)
+
+#geopackages
+gpkgs = list.files(jobdir, pattern = "_harmonized.gpkg", recursive = TRUE, full.names = T)
+wd = getwd()
+setwd("../water_areas_shapefiles/geoflow")
+for(gpkg in gpkgs){
+  file.copy(from = gpkg, to = getwd(), overwrite = TRUE)
+}
+setwd(wd)

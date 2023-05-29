@@ -96,7 +96,7 @@ function(action, entity, config){
     unique(config$fao_major_areas[sf::st_intersects(entity$data$features[i,],config$fao_major_areas, sparse = F),]$F_CODE)
   })
   
-  out_vocab = data.frame(
+  entity_vocabulary = data.frame(
     namespace = entity$identifiers$id,
     country = country,
     system_owner_code = owner$identifiers$id,
@@ -114,5 +114,9 @@ function(action, entity, config){
   )
   
   #write CSV
-  readr::write_csv(out_vocab, file.path(getwd(), "metadata", paste0(entity$identifiers$id, "_areas.csv")))
+  readr::write_csv(entity_vocabulary, file.path(getwd(), "metadata", paste0(entity$identifiers$id, "_areas.csv")))
+  
+  #add vocabulary as entity resource
+  entity$addResource("vocabulary", entity_vocabulary)
+  
 }
