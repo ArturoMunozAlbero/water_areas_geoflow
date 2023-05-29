@@ -1,14 +1,14 @@
 {  
   "profile": {
-	"id": "grsf-water-areas",
-	"mode": "entity",
-	"project": "GRSF Water Areas catalogue",
-	"organization": "GRSF",
-	"logos": [],
-	"environment": {
-		"file": ".env",
-        "hide_env_vars": ["*"]
-	}
+  	"id": "grsf-water-areas",
+  	"mode": "entity",
+  	"project": "GRSF Water Areas catalogue",
+  	"organization": "GRSF",
+  	"logos": [],
+  	"environment": {
+  		"file": ".env",
+          "hide_env_vars": ["*"]
+  	}
   },
   "metadata": {
     "entities": [{

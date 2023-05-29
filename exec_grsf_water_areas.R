@@ -12,6 +12,10 @@ for(area_file in area_files){
 }
 setwd(wd)
 
+#all areas?
+all_areas = do.call("rbind", lapply(area_files, function(x){readr::read_csv(x)}))
+readr::write_csv(all_areas, "all_areas.csv")
+
 #geopackages
 gpkgs = list.files(jobdir, pattern = "_harmonized.gpkg", recursive = TRUE, full.names = T)
 wd = getwd()
@@ -20,3 +24,6 @@ for(gpkg in gpkgs){
   file.copy(from = gpkg, to = getwd(), overwrite = TRUE)
 }
 setwd(wd)
+
+#one single geopackage
+all_features = do.call("rbind", lapply(gpkgs, function(x){sf::st_read(x)}))
