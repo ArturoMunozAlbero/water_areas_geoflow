@@ -93,7 +93,9 @@ function(action, entity, config){
   
   #parent_areas
   parent_areas = sapply(1:nrow(entity$data$features), function(i){
-    unique(config$fao_major_areas[sf::st_intersects(entity$data$features[i,],config$fao_major_areas, sparse = F),]$F_CODE)
+    codes = unique(config$fao_major_areas[sf::st_intersects(entity$data$features[i,],config$fao_major_areas, sparse = F),]$F_CODE)
+	code_str = paste(paste("fao", codes, sep = ":"), collapse=";")
+	return(code_str)
   })
   
   entity_vocabulary = data.frame(
