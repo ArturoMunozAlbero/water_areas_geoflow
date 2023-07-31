@@ -128,10 +128,14 @@ function(action, entity, config){
     parent_area = parent_areas
   )
   
-  #write CSV
+  #write CSV (non-spatial)
   readr::write_csv(entity_vocabulary, file.path(getwd(), "metadata", paste0(entity$identifiers$id, "_areas.csv")))
-  
-  #add vocabulary as entity resource
-  entity$addResource("vocabulary", entity_vocabulary)
+  #write spatial files
+  new_features = cbind(features, entity_vocabulary)
+  new_features = new_features[,colnames(entity_vocabulary)]
+  #CSV
+  sf::st_write(new_features, file.path(getwd(), "data", paste0(entity$identifiers$id, "_spatial_areas", ".csv")))
+  #GeoPackage
+  sf::st_write(new_features, file.path(getwd(), "data", paste0(entity$identifiers$id, "_spatial_areas", ".gpkg")))
   
 }

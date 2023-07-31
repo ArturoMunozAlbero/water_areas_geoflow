@@ -17,7 +17,7 @@ all_areas = do.call("rbind", lapply(area_files, function(x){readr::read_csv(x)})
 readr::write_csv(all_areas, "all_areas.csv")
 
 #geopackages
-gpkgs = list.files(jobdir, pattern = "_harmonized.gpkg", recursive = TRUE, full.names = T)
+gpkgs = list.files(jobdir, pattern = "_spatial_areas.gpkg", recursive = TRUE, full.names = T)
 wd = getwd()
 setwd("../water_areas_shapefiles/geoflow")
 for(gpkg in gpkgs){
