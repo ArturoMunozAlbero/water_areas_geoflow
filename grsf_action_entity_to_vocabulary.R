@@ -9,6 +9,12 @@ function(action, entity, config){
    config$fao_major_areas = WFS_FAO$getFeatures("fifao:FAO_MAJOR")
   }
   
+  #control to check projection
+  features = entity$data$features
+  if(sf::st_crs(features) != 4326){
+	features = sf::st_transform(features, 4326)
+  }
+
   #country
   country = NA
   countries = entity$subjects[sapply(entity$subjects, function(x){x$key == "country"})]
@@ -54,8 +60,8 @@ function(action, entity, config){
   georef_codes = entity$subjects[sapply(entity$subjects, function(x){x$key == "grsf_georef_code"})]
   if(length(georef_codes)>0){
     georef_code = georef_codes[[1]]$keywords[[1]]$name
-    if(georef_code %in% colnames(entity$data$features)){
-      area_codes = entity$data$features[[georef_code]]
+    if(georef_code %in% colnames(features)){
+      area_codes = features[[georef_code]]
     }
   }
   
@@ -65,8 +71,8 @@ function(action, entity, config){
   georef_names = entity$subjects[sapply(entity$subjects, function(x){x$key == "grsf_georef_name"})]
   if(length(georef_names)>0){
     georef_name = georef_names[[1]]$keywords[[1]]$name
-    if(georef_name %in% colnames(entity$data$features)){
-      area_names = entity$data$features[[georef_name]]
+    if(georef_name %in% colnames(features)){
+      area_names = features[[georef_name]]
     }
   }
   
@@ -92,8 +98,8 @@ function(action, entity, config){
   }
   
   #parent_areas
-  parent_areas = sapply(1:nrow(entity$data$features), function(i){
-    codes = unique(config$fao_major_areas[sf::st_intersects(entity$data$features[i,],config$fao_major_areas, sparse = F),]$F_CODE)
+  parent_areas = sapply(1:nrow(features), function(i){
+    codes = unique(config$fao_major_areas[sf::st_intersects(features[i,],config$fao_major_areas, sparse = F),]$F_CODE)
 	code_str = paste(paste("fao", codes, sep = ":"), collapse=";")
 	return(code_str)
   })
