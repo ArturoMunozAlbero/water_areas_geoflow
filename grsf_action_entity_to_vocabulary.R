@@ -11,7 +11,7 @@ function(action, entity, config){
   
   #control to check projection
   features = entity$data$features
-  if(sf::st_crs(features) != 4326){
+  if(geoflow::get_epsg_code(features) != 4326){
 	features = sf::st_transform(features, 4326)
   }
 
@@ -81,6 +81,13 @@ function(action, entity, config){
   area_types = entity$subjects[sapply(entity$subjects, function(x){x$key == "grsf_area_type"})]
   if(length(area_types)>0){
     area_type = area_types[[1]]$keywords[[1]]$name
+  }else{
+	#look for a grsf_area_type_code (if shapefile provides this information)
+	area_type_codes = entity$subjects[sapply(entity$subjects, function(x){x$key == "grsf_area_type_code"})]
+	if(length(area_type_codes)>0){
+		area_type_code = area_type_codes[[1]]$keywords[[1]]$name
+		area_type = features[[area_type_code]]
+	}
   }
   
   #typology
