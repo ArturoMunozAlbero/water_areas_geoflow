@@ -7,14 +7,20 @@ function(action, entity, config){
       logger = "INFO"
     )
    config$fao_major_areas = WFS_FAO$getFeatures("fifao:FAO_MAJOR")
+   sf::st_crs(config$fao_major_areas) = 4326
   }
   
   #control to check projection
   features = entity$data$features
-  if(geoflow::get_epsg_code(features) != 4326){
-	features = sf::st_transform(features, 4326)
+  epsgcode = geoflow::get_epsg_code(features)
+  if(is.na(epsgcode)){
+    sf::st_crs(features) <- 4326
+    epsgcode = 4326
   }
-
+  if(epsgcode != 4326){
+    features = sf::st_transform(features, 4326)
+  }
+  
   #country
   country = NA
   countries = entity$subjects[sapply(entity$subjects, function(x){x$key == "country"})]
@@ -51,7 +57,7 @@ function(action, entity, config){
   differentiating_code_system_description = NA
   differentiating_code_system_descriptions = entity$subjects[sapply(entity$subjects, function(x){x$key == "grsf_differentiating_code_system_description"})]
   if(length(differentiating_code_system_descriptions)>0){
-    differentiating_code_system_description = differentiating_code_system_descriptionS[[1]]$keywords[[1]]$name
+    differentiating_code_system_description = differentiating_code_system_descriptions[[1]]$keywords[[1]]$name
   }
   
   #area_code
@@ -111,6 +117,71 @@ function(action, entity, config){
 	return(code_str)
   })
   
+  #grsf_creation
+  grsf_creation = NA
+  grsf_creations = entity$subjects[sapply(entity$subjects, function(x){x$key == "grsf_creation"})]
+  if(length(grsf_creations)>0){
+    grsf_creation = grsf_creations[[1]]$keywords[[1]]$name
+  }
+  
+  #grsf_sourceoftruth
+  grsf_sourceoftruth = NA
+  grsf_sourceoftruths = entity$subjects[sapply(entity$subjects, function(x){x$key == "grsf_sourceoftruth"})]
+  if(length(grsf_sourceoftruths)>0){
+    grsf_sourceoftruth = grsf_sourceoftruths[[1]]$keywords[[1]]$name
+  }
+  
+  #grsf_licence
+  grsf_licence = NA
+  grsf_licences = entity$subjects[sapply(entity$subjects, function(x){x$key == "grsf_licence"})]
+  if(length(grsf_licences)>0){
+    grsf_licence = grsf_licences[[1]]$keywords[[1]]$name
+  }
+  
+  #useLimitation
+  useLimitation = NA
+  useLimitations = entity$rights[sapply(entity$rights, function(x){x$key == "useLimitation"})]
+  if(length(useLimitations)>0){
+    useLimitation = useLimitations[[1]]$values[[1]]
+  }
+  
+  #website
+  source_link = NA
+  source_links = entity$relations[sapply(entity$relations, function(x){x$key == "http"})]
+  if(length(source_links)>0){
+    source_link = source_links[[1]]$link
+  }
+  
+  #publishable
+  publishable = NA
+  if (grsf_creation=='from_coordinates'){
+    if (grsf_sourceoftruth=='true'){
+      if (grsf_licence=='copyright'){
+          publishable<-'no'
+      }else{
+          publishable<-'yes'
+      }
+    }else{
+        publishable<-'no'
+    }
+  }else{
+    if (grsf_creation=='none'){
+      if (grsf_sourceoftruth=='true'){
+        if (grsf_licence=='copyright'){
+              publishable<-'no'
+            }else{
+              publishable<-'yes'
+            }
+        }else{
+            publishable<-'no'
+        }
+    }else{
+      if (grsf_sourceoftruth=='false')
+        publishable<-'no'
+    }
+  }
+  
+  
   entity_vocabulary = data.frame(
     namespace = entity$identifiers$id,
     country = country,
@@ -125,16 +196,25 @@ function(action, entity, config){
     area_type = area_type,
     typology = typology,
     species_specific = species_specific,
-    parent_area = parent_areas
+    parent_area = parent_areas,
+    grsf_creation = grsf_creation,
+    grsf_sourceoftruth = grsf_sourceoftruth,
+    grsf_licence = grsf_licence,
+    publishable = publishable,
+    source_link = source_link,
+    useLimitation = useLimitation
   )
   
   #write CSV (non-spatial)
   readr::write_csv(entity_vocabulary, file.path(getwd(), "metadata", paste0(entity$identifiers$id, "_areas.csv")))
   #write spatial files
-  new_features = cbind(features, entity_vocabulary)
-  new_features = new_features[,colnames(entity_vocabulary)]
+  geomName = colnames(features)[sapply(colnames(features), function(x){is(features[[x]], "sfc")})]
+  new_features = cbind(features[,geomName], entity_vocabulary)
+  #new_features = cbind(features, entity_vocabulary) - old cbind used
+  #new_features = new_features[,colnames(entity_vocabulary)] - old fix after cbind
+  #check which type has the result of previous operation --> "_spatial_areas.csv" does not include the polygon field!
   #CSV
-  sf::st_write(new_features, file.path(getwd(), "data", paste0(entity$identifiers$id, "_spatial_areas", ".csv")))
+  #sf::st_write(new_features, file.path(getwd(), "data", paste0(entity$identifiers$id, "_spatial_areas", ".csv")))
   #GeoPackage
   sf::st_write(new_features, file.path(getwd(), "data", paste0(entity$identifiers$id, "_spatial_areas", ".gpkg")))
   
