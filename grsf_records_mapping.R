@@ -1,3 +1,13 @@
+#Install packages
+require(sf)
+require(geoflow)
+require(geojsonsf)
+library(dplyr)  # For data manipulation
+library(ggplot2)  # For plotting
+
+setwd("C:/Users/artur/OneDrive/Documents/FAO/R GIS/GRSF_water_areas_project")
+wd = getwd()
+
 #Extract GRSF competency query directly from GRSF website?
 
 #Read GSRF competency query CSV
@@ -12,21 +22,23 @@ all_areas = read.csv("C:/Users/artur/OneDrive/Documents/GitHub/water_areas_vocab
 View(all_areas)
 
 #Get all shapefiles from GitHub
-all_features = do.call("rbind", lapply(gpkgs, function(x){sf::st_read(x)}))
-gpkgs = list.files(jobdir, pattern = "_areas.gpkg", recursive = TRUE, full.names = T)
-setwd("C:/Users/artur/OneDrive/Documents/GitHub/water_areas_shapefiles/geoflow")
-for(gpkg in gpkgs){
-  file.copy(from = gpkg, to = getwd(), overwrite = TRUE)
-}
-setwd(wd)
-all_features = do.call("rbind", lapply(gpkgs, function(x){sf::st_read(x)}))
+#all_features = do.call("rbind", lapply(gpkgs, function(x){sf::st_read(x)}))
+#gpkgs = list.files(jobdir, pattern = "_areas.gpkg", recursive = TRUE, full.names = T)
+#setwd("C:/Users/artur/OneDrive/Documents/GitHub/water_areas_shapefiles/geoflow")
+#for(gpkg in gpkgs){
+#  file.copy(from = gpkg, to = getwd(), overwrite = TRUE)
+#}
+#setwd(wd)
+#all_features = do.call("rbind", lapply(gpkgs, function(x){sf::st_read(x)}))
+
+all_features = st_read("C:/Users/artur/OneDrive/Documents/GitHub/water_areas_shapefiles/geoflow/all_areas.gpkg")
 
 #Concatenate namespace and area_code for obtaining grsf_area_code in all_features
 all_features$grsf_area_code <- paste(all_features$namespace,all_features$area_code,sep=":")
 View(all_features)
 
-#Search each area of records in "all_features" and extract geometries, then join them
 
+#Search each area of records in "all_features" and extract geometries, then join them
 #Function to extract and combine polygons for given area codes
 extract_combine_polygons <- function(area_codes, all_features) {
   #Filter GIS data for the given area codes
@@ -38,12 +50,9 @@ extract_combine_polygons <- function(area_codes, all_features) {
   #Return the combined multipolygon as an sf object
   return(st_sf(geometry = combined_multipolygon))
 }
-
 #Extraction added to grsf_records
-grsf_records$combined_geom <- mapply(extract_combine_polygons, strsplit(grsf_records$record_area, ";"), list(all_features))
+grsf_records$geo_polygon <- mapply(extract_combine_polygons, strsplit(grsf_records$record_area, ";"), list(all_features))
 
-# Plotting using SF object (NOT WORKING)
-#plot(st_geometry(grsf_records$combined_geom[9]))
 
 #Function to extract and combine polygons for given area codes in Well-Known Text (WKT) format
 extract_combine_polygons_wkt <- function(area_codes, all_features) {
@@ -59,15 +68,8 @@ extract_combine_polygons_wkt <- function(area_codes, all_features) {
   # Return the combined multipolygon in WKT format
   return(combined_multipolygon_wkt)
 }
-
 #Extraction added to grsf_records
-grsf_records$combined_geom_wkt <- mapply(extract_combine_polygons_wkt, strsplit(grsf_records$record_area, ";"), list(all_features))
-
-#PLOT AREA OF ANY RECORD
-  # Convert WKT to SF object
-  combined_geom_wkt <- st_as_sfc(grsf_records$combined_geom_wkt[9])
-  # Plotting using WKT converted to SF object
-  plot(combined_geom_wkt)
+grsf_records$geo_polygon_wkt <- mapply(extract_combine_polygons_wkt, strsplit(grsf_records$record_area, ";"), list(all_features))
 
 
 # Create centroids for each record's area
@@ -79,7 +81,7 @@ grsf_records$centroid <- lapply(strsplit(grsf_records$record_area, ";"), functio
   combined_multipolygon <- st_union(filtered_geoms)
   
   # Calculate centroid of the combined geometry
-  centroid <- st_centroid(combined_multipolygon)
+  centroid <- st_point_on_surface(combined_multipolygon)
   
   # Convert centroid to WKT format
   centroid_wkt <- st_as_text(centroid)
@@ -88,21 +90,19 @@ grsf_records$centroid <- lapply(strsplit(grsf_records$record_area, ";"), functio
   return(centroid_wkt)
 })
 
-#Plot centroids
-  # Convert WKT centroid to SF object
-  centroid_sf <- st_as_sfc(grsf_records$centroid[9])
-
-  # Plot the centroid using SF object
-  plot(centroid_sf, add = TRUE, pch = 19, col = "red", main = "Centroid")
-
-#Plot with FAO Coastline background
-  fao_coastline <- st_combine(st_read("C:/Users/artur/OneDrive/Documents/FAO/Fish in Space/GRSF_Water_Areas_Project/FAO Areas/FAO_coastline.shp"))
-  plot(fao_coastline, col = "lightblue", main = "Coastline")
-  plot(combined_geom_wkt, add=TRUE, col="yellow")
-  plot(centroid_sf, add = TRUE, pch = 19, col = "red", main = "Centroid")
   
-  #Add more grsf records areas and centroids
-  combined_geom_wkt <- st_as_sfc(grsf_records$combined_geom_wkt[17])
-  plot(combined_geom_wkt, add=TRUE, col="yellow")
-  centroid_sf <- st_as_sfc(grsf_records$centroid[17])
-  plot(centroid_sf, add = TRUE, pch = 19, col = "red", main = "Centroid")
+# Create SF object for grsf_records with the combined geometry (centroids)
+grsf_records_sf = sf::st_sf(
+  uuid = grsf_records[lengths(grsf_records$centroid) > 0, ]$uuid,
+  short_name = grsf_records[lengths(grsf_records$centroid) > 0, ]$short_name,
+  grsf_name = grsf_records[lengths(grsf_records$centroid) > 0, ]$grsf_name,
+  grsf_semantic_id = grsf_records[lengths(grsf_records$centroid) > 0, ]$grsf_semantic_id,
+  type = grsf_records[lengths(grsf_records$centroid) > 0, ]$type,
+  record_area = grsf_records[lengths(grsf_records$centroid) > 0, ]$record_area,
+  geom = st_as_sfc(grsf_records[lengths(grsf_records$centroid) > 0, ]$centroid),
+  #geom_wkt = grsf_records[lengths(grsf_records$centroid) > 0, ]$centroid
+  geo_polygon = as(sfc_geojson(st_as_sfc(grsf_records$geo_polygon_wkt)),"character")
+)
+
+View(grsf_records_sf)
+st_write(grsf_records_sf, "grsf_records.gpkg", driver = "GPKG")
