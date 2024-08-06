@@ -1,0 +1,7 @@
+Identifier,Email,OrganizationName,PositionName,LastName,FirstName,PostalAddress,PostalCode,City,Country,Voice,Facsimile,WebsiteUrl,WebsiteName
+id:fao,FAO-HQ@fao.org,Food and Agriculture Organization of the United Nations,International Organization,NA,NA,Viale delle Terme di Caracalla,00153,Rome,Italy,(+39) 06 57051,123456800,www.fao.org,https://www.fao.org
+id:firms,FIRMS-Secretariat@fao.org,Fisheries and Resources Monitoring System (FIRMS) Secretariat,Secretariat,NA,NA,Viale delle Terme di Caracalla,00153,Rome,Italy,NA,NA,https://firms.fao.org,Fisheries and Resources Monitoring System
+"id:emmanuel.blondel@fao.org_
+orcid:0000-0002-5870-5762",emmanuel.blondel@fao.org,UN-FAO - Fisheries and Aquaculture Division (NFI). Statistics and Information Branch (NFIS),Geographic Information Systems and R Expert,Blondel,Emmanuel,Viale delle Terme di Caracalla,00153,Rome,Italy,NA,NA,https://www.fao.org/fishery,FAO Fisheries & Aquaculture Division
+id:arturo.munozalbero@fao.org,arturo.munozalbero@fao.org,UN-FAO - Fisheries and Aquaculture Division (NFI). Statistics and Information Branch (NFIS),GIS Specialist,Muñoz Albero,Arturo,Viale delle Terme di Caracalla,00153,Rome,Italy,NA,NA,https://www.fao.org/fishery,FAO Fisheries & Aquaculture Division
+id:aureliano.gentile@fao.org,aureliano.gentile@fao.org,UN-FAO - Fisheries and Aquaculture Division (NFI). Statistics and Information Branch (NFIS),Information Manager,Gentile,Aureliano,Viale delle Terme di Caracalla,00153,Rome,Italy,NA,NA,https://www.fao.org/fishery,FAO Fisheries & Aquaculture Division

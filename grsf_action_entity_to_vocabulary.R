@@ -7,6 +7,7 @@ function(action, entity, config){
       logger = "INFO"
     )
    config$fao_major_areas = WFS_FAO$getFeatures("fifao:FAO_MAJOR")
+   #config$fao_major_areas = WFS_FAO$getFeatures("fifao:FAO_AREAS_LOWRES", cql_filter = URLencode("F_LEVEL='MAJOR'"))
    sf::st_crs(config$fao_major_areas) = 4326
   }
   
@@ -112,8 +113,9 @@ function(action, entity, config){
   
   #parent_areas
   parent_areas = sapply(1:nrow(features), function(i){
+    #codes = unique(config$fao_major_areas[sf::st_intersects(features[i,],config$fao_major_areas, sparse = F) & !sf::st_touches(features[i,],config$fao_major_areas, sparse = F),]$F_CODE)
     codes = unique(config$fao_major_areas[sf::st_intersects(features[i,],config$fao_major_areas, sparse = F),]$F_CODE)
-	code_str = paste(paste("fao", codes, sep = ":"), collapse=";")
+  code_str = paste(paste("fao", codes, sep = ":"), collapse=";")
 	return(code_str)
   })
   
@@ -138,7 +140,7 @@ function(action, entity, config){
     grsf_licence = grsf_licences[[1]]$keywords[[1]]$name
   }
   
-  #useLimitation
+  #useLimitatio0n
   useLimitation = NA
   useLimitations = entity$rights[sapply(entity$rights, function(x){x$key == "useLimitation"})]
   if(length(useLimitations)>0){
